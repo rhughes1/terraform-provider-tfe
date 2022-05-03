@@ -42,7 +42,7 @@ func dataSourceTFETeamRead(d *schema.ResourceData, meta interface{}) error {
 	for {
 		l, err := tfeClient.Teams.List(ctx, organization, options)
 		if err != nil {
-			return fmt.Errorf("Error retrieving teams: %v", err)
+			return fmt.Errorf("Error retrieving teams: %w", err)
 		}
 
 		for _, tm := range l.Items {
