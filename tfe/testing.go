@@ -11,7 +11,9 @@ import (
 const RUN_TASKS_URL_ENV_NAME = "RUN_TASKS_URL"
 
 type testClientOptions struct {
+	defaultOrganization          string
 	defaultWorkspaceID           string
+	defaultRunTaskID             string
 	remoteStateConsumersResponse string
 }
 
@@ -22,12 +24,17 @@ func testTfeClient(t *testing.T, options testClientOptions) *tfe.Client {
 		Token: "not-a-token",
 	}
 
+	if options.defaultOrganization == "" {
+		options.defaultOrganization = "hashicorp"
+	}
+
 	client, err := tfe.NewClient(config)
 	if err != nil {
 		t.Fatalf("error creating tfe client: %v", err)
 	}
 
 	client.Workspaces = newMockWorkspaces(options)
+	client.RunTasks = newMockRunTasks(options)
 
 	return client
 }
