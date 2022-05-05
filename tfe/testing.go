@@ -14,6 +14,7 @@ type testClientOptions struct {
 	defaultOrganization          string
 	defaultWorkspaceID           string
 	defaultRunTaskID             string
+	defaultWorkspaceRunTaskID    string
 	remoteStateConsumersResponse string
 }
 
@@ -35,6 +36,7 @@ func testTfeClient(t *testing.T, options testClientOptions) *tfe.Client {
 
 	client.Workspaces = newMockWorkspaces(options)
 	client.RunTasks = newMockRunTasks(options)
+	client.WorkspaceRunTasks = newMockWorkspaceRunTasks(options)
 
 	return client
 }

@@ -32,3 +32,39 @@ func fetchOrganizationRunTask(name string, organization string, client *tfe.Clie
 
 	return nil, fmt.Errorf("Could not find organization run task for organization %s and name %s", organization, name)
 }
+
+// fetchWorkspaceRunTask returns the task association in a workspace by name
+func fetchWorkspaceRunTask(name string, workspace string, organization string, client *tfe.Client) (*tfe.WorkspaceRunTask, error) {
+	task, err := fetchOrganizationRunTask(name, organization, client)
+	if err != nil {
+		return nil, fmt.Errorf("Error reading configuration of task %s in organization %s: %v", name, organization, err)
+	}
+
+	ws, err := client.Workspaces.Read(ctx, organization, workspace)
+	if err != nil {
+		return nil, fmt.Errorf("Error reading configuration of workspace %s in organization %s: %v", workspace, organization, err)
+	}
+
+	options := &tfe.WorkspaceRunTaskListOptions{}
+	for {
+		list, err := client.WorkspaceRunTasks.List(ctx, ws.ID, options)
+		if err != nil {
+			return nil, fmt.Errorf("Error retrieving workspace run tasks: %v", err)
+		}
+		for _, wstask := range list.Items {
+			if wstask != nil && wstask.RunTask.ID == task.ID {
+				return wstask, nil
+			}
+		}
+
+		// Exit the loop when we've seen all pages.
+		if list.CurrentPage >= list.TotalPages {
+			break
+		}
+
+		// Update the page number to get the next page.
+		options.PageNumber = list.NextPage
+	}
+
+	return nil, fmt.Errorf("Could not find organization run task %s for workspace %s in organization %s", name, workspace, organization)
+}
