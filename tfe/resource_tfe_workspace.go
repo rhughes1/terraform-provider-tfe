@@ -115,7 +115,10 @@ func resourceTFEWorkspace() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-
+			"resource_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			}
 			"operations": {
 				Type:          schema.TypeBool,
 				Optional:      true,
@@ -344,6 +347,7 @@ func resourceTFEWorkspaceRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("trigger_prefixes", workspace.TriggerPrefixes)
 	d.Set("working_directory", workspace.WorkingDirectory)
 	d.Set("organization", workspace.Organization.Name)
+	d.Set("resource_count", workspace.ResourceCount)
 
 	var sshKeyID string
 	if workspace.SSHKey != nil {
